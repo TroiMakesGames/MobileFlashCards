@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Button
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.ComponentActivity
@@ -17,7 +18,18 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.troi.flashcards.data.AppDatabase
 import com.troi.flashcards.ui.theme.FlashCardsTheme
+
+//room db stuff
+import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
+import com.troi.flashcards.data.Deck
+import com.troi.flashcards.data.DeckDao
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainActivity : ComponentActivity() {
 
@@ -26,6 +38,10 @@ class MainActivity : ComponentActivity() {
 
     //get var for deck indexing
     var numOfDecks: Int = 0
+
+    //room db stuff
+    private lateinit var appDatabase: AppDatabase
+    private lateinit var deckDao: DeckDao
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,18 +53,30 @@ class MainActivity : ComponentActivity() {
         //get add button and set on click listener to add decks
         var addButton = findViewById<Button>(R.id.addButton)
         addButton.setOnClickListener {
-            addDeck("New Deck", numOfDecks)
+
+            //create some initial vars
+            var newDeckName = "New Deck"
+            var newDeckId = -1
+
+            //create a new deck saved object in db and return its id for further operations
+            CoroutineScope(Dispatchers.Main).launch {
+                newDeckId = addDeckToDatabase(newDeckName)
+            }
+
+            //create a ui element
+            addDeckElement(newDeckId, newDeckName, numOfDecks)
         }
 
-        //TEMP --------------------------
-        //create 5 decks
-        repeat(5) { i ->
-            addDeck("Deck $i", numOfDecks)
-        }
+        //initialize database and dao
+        appDatabase = AppDatabase.getDatabase((applicationContext))
+        deckDao = appDatabase.deckDao()
+
+        //create deck elements on xml from queried existing decks
+        loadDecksAsUI()
     }
 
     //func to add a deck object in the linear container
-    private fun addDeck(name: String, newDeckIndex: Int) {
+    private fun addDeckElement(deckId: Int, name: String, newDeckIndex: Int) {
 
         //create an instantiater manager
         val inflater = LayoutInflater.from(this)
@@ -87,7 +115,12 @@ class MainActivity : ComponentActivity() {
 
                 //delete button pressed
                 else if (i == 2)
-                {deleteDeck(newDeckIndex)}
+                {
+                    //remove ui element
+                    deleteDeckElement(elementView)
+                    //remove from db by id
+                    removeDeck(deckId)
+                }
             }
         }
 
@@ -96,6 +129,8 @@ class MainActivity : ComponentActivity() {
 
         linearContainer.addView(elementView)
     }
+
+    //----------------------------------------------------------------------------------------------
 
     private fun loadPlayActivity(deckIndex: Int) {
         //get new intent
@@ -121,8 +156,40 @@ class MainActivity : ComponentActivity() {
         overridePendingTransition(0, 0)     //skip animation
     }
 
-    private fun deleteDeck(deckIndex: Int) {
-        //TODO - delete deck
-        val temp = 1
+    private fun deleteDeckElement(deckElement: View) {
+        //delete deck
+        linearContainer.removeView(deckElement)
+        numOfDecks -= 1
+    }
+
+    //----------------------------------------------------------------------------------------------
+
+    //after creating a deck add it to the database
+    suspend fun addDeckToDatabase(deckName: String): Int {
+        //create new deck object
+        val newDeck = Deck(name = deckName)
+        deckDao.insertDeck(newDeck)
+
+        return newDeck.id
+    }
+
+    //get all deck list from db and load ui elements
+    private fun loadDecksAsUI() {
+        //load decks from db, coroutine fro db operations
+        CoroutineScope(Dispatchers.Main).launch {
+            val allDecks = deckDao.getAllDecks()
+
+            //add deck elements as ui, run in corotuine for allDecks scope
+            for (deck in allDecks)
+            { addDeckElement(deck.id, deck.name, numOfDecks) }
+        }
+    }
+
+    //delete saved deck from db
+    private fun removeDeck(deckId: Int) {
+        //coroutine for db operations
+        CoroutineScope(Dispatchers.IO).launch {
+            deckDao.deleteDeckById(deckId)
+        }
     }
 }
