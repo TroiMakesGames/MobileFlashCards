@@ -1,5 +1,6 @@
 package com.troi.flashcards
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -23,6 +24,9 @@ class MainActivity : ComponentActivity() {
     //(private late initialised var) (initialised later)
     private lateinit var linearContainer: LinearLayout
 
+    //get var for deck indexing
+    var numOfDecks: Int = 0
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.mainlayout)
@@ -33,18 +37,18 @@ class MainActivity : ComponentActivity() {
         //get add button and set on click listener to add decks
         var addButton = findViewById<Button>(R.id.addButton)
         addButton.setOnClickListener {
-            addDeck("New Deck")
+            addDeck("New Deck", numOfDecks)
         }
 
         //TEMP --------------------------
         //create 5 decks
         repeat(5) { i ->
-            addDeck("Deck $i")
+            addDeck("Deck $i", numOfDecks)
         }
     }
 
     //func to add a deck object in the linear container
-    private fun addDeck(name: String) {
+    private fun addDeck(name: String, newDeckIndex: Int) {
 
         //create an instantiater manager
         val inflater = LayoutInflater.from(this)
@@ -69,11 +73,56 @@ class MainActivity : ComponentActivity() {
         for (i in 0 until buttonLayout.childCount) {
             //for every button set text to visible
             buttonLayout.getChildAt(i).setOnClickListener {
+                //toggle buttons visibility
                 buttonLayout.visibility = View.GONE
                 nameText.visibility = View.VISIBLE
+
+                //play button pressed
+                if (i == 0)
+                {loadPlayActivity(newDeckIndex)}
+
+                //edit button pressed
+                else if (i == 1)
+                {loadEditActivity(newDeckIndex)}
+
+                //delete button pressed
+                else if (i == 2)
+                {deleteDeck(newDeckIndex)}
             }
         }
 
+        //increase deck num for next indexes
+        numOfDecks += 1
+
         linearContainer.addView(elementView)
+    }
+
+    private fun loadPlayActivity(deckIndex: Int) {
+        //get new intent
+        val intent = Intent(this, PlayActivity::class.java)
+
+        //send deck index data
+        intent.putExtra("deckIndex", deckIndex)
+
+        //start intent as activity
+        startActivity(intent)
+        overridePendingTransition(0, 0)     //skip animation
+    }
+
+    private fun loadEditActivity(deckIndex: Int) {
+        //get new intent
+        val intent = Intent(this, EditActivity::class.java)
+
+        //send deck index data
+        intent.putExtra("deckIndex", deckIndex)
+
+        //start intent as activity
+        startActivity(intent)
+        overridePendingTransition(0, 0)     //skip animation
+    }
+
+    private fun deleteDeck(deckIndex: Int) {
+        //TODO - delete deck
+        val temp = 1
     }
 }
