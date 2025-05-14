@@ -6,10 +6,10 @@ import androidx.room.*
 @Dao
 interface DeckDao {
     @Insert
-    suspend fun insertDeck(deck: Deck)
+    suspend fun insertDeck(deck: DeckSave)
 
     @Query("SELECT * FROM decks")
-    suspend fun getAllDecks(): List<Deck>
+    suspend fun getAllDecks(): List<DeckSave>
 
     @Query("DELETE FROM decks WHERE id = :deckId")
     suspend fun deleteDeckById(deckId: Int)

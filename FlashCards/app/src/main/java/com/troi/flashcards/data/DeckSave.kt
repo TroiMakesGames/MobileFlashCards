@@ -5,8 +5,9 @@ import androidx.room.PrimaryKey
 
 //create database table
 @Entity(tableName = "decks")
-data class Deck(
+data class DeckSave(
     //autogenerate decks id
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
+
     val name: String
 )

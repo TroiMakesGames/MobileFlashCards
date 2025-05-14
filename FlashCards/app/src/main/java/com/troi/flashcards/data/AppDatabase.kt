@@ -6,7 +6,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [Deck::class], version = 1, exportSchema = false)      //database that has deck type entitites
+@Database(entities = [DeckSave::class], version = 1, exportSchema = false)      //database that has deck type entitites
 abstract class AppDatabase: RoomDatabase() {
 
     //acces deck dao interface
