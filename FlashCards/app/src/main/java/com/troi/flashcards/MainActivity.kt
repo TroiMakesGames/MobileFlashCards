@@ -89,7 +89,7 @@ class MainActivity : ComponentActivity() {
             var newDeck = Deck("New Deck", deckDao, null, linearContainer, this, this)
             allDecks.add(newDeck)
 
-            newDeck.addSaveToDatabase(this)
+            //newDeck.addSaveToDatabase(this)   //done in deck init if prev save doesnt exist
             newDeck.addElementToLayout(linearContainer)
         }
     }
@@ -118,18 +118,25 @@ class Deck(var deckName: String, deckDao: DeckDao, prevSave: DeckSave?, linearCo
             id = deckSave.id
             deckElement = generateDeckElement(this, linearContainer, context, lifecycleOwner)
         }
-        //otherwise everything has been generated correctly
+        //add deck to db, doing this also updates autogen id to get new id correctly and override id and deck element
+        else {
+            //get deck as "this" to pass it in the coroutine
+            val pDeck = this
+            //because a return cannot occur in a coroutine a suspend function is required, which in turn has to be called in a coroutine itself
+            lifecycleOwner.lifecycleScope.launch {
+                //add deck to db and obtain correct id
+                var correctId = addSaveToDatabase(lifecycleOwner)
+
+                id = correctId
+                deckElement = generateDeckElement(pDeck, linearContainer, context, lifecycleOwner)
+            }
+        }
     }
 
-    //function to add deck save to db
-    fun addSaveToDatabase(lifecycleOwner: LifecycleOwner) {
-        //generate a decksave
-        lifecycleOwner.lifecycleScope.launch(Dispatchers.IO)  {
-            deckDao.insertDeck(deckSave)
-
-            //temp logging
-            Log.d("MainActivity", "||||| added save to database with id: $id")
-        }
+    //function to add deck save to db (suspend func to return from a corotuine or something idk)
+    suspend fun addSaveToDatabase(lifecycleOwner: LifecycleOwner): Int = withContext(Dispatchers.IO){
+        //by inserting get correct id and return it
+        deckDao.insertDeck(deckSave).toInt()
     }
 
     //func to add deck element to views
@@ -139,11 +146,12 @@ class Deck(var deckName: String, deckDao: DeckDao, prevSave: DeckSave?, linearCo
     }
 
     //func to delete deck from views and database
-    fun deleteDeck(linearContainer: LinearLayout, lifecycleOwner: LifecycleOwner) {
+    //NOTE: because for some reason the id isnt updated (idk why :cry:), the parent deck id and elementview are passed in directly (and not by getting them from a passed in deck object)
+    fun deleteDeck(id: Int, deckElement: View, linearContainer: LinearLayout, lifecycleOwner: LifecycleOwner) {
         //remove from db
         lifecycleOwner.lifecycleScope.launch(Dispatchers.IO)  {
-            deckDao.deleteDeckById(deckSave.id)
-            Log.d("MainActivity", "||||| deleted save from database")
+            deckDao.deleteDeckById(id)
+            Log.d("MainActivity", "||||| deleted save from database: $deckSave")
         }
 
         //remove from layout if displayed before
@@ -157,6 +165,9 @@ class Deck(var deckName: String, deckDao: DeckDao, prevSave: DeckSave?, linearCo
 
 //func to add a deck object in the linear container
 fun generateDeckElement(parentDeck: Deck, linearContainer: LinearLayout, context: Context, lifecycleOwner: LifecycleOwner): View {
+
+    //temp logging
+    Log.d("MainActivity", "||||| attempting to generate a deck element for deck: " + parentDeck.id.toString())
 
     //create an instantiater manager
     val inflater = LayoutInflater.from(context)
@@ -197,8 +208,11 @@ fun generateDeckElement(parentDeck: Deck, linearContainer: LinearLayout, context
             //delete button pressed
             else if (i == 2)
             {
+                //temp logging
+                Log.d("MainActivity", "||||| deleted deck: " + parentDeck.id.toString())
+
                 //delete deck
-                parentDeck.deleteDeck(linearContainer, lifecycleOwner)
+                parentDeck.deleteDeck(parentDeck.id, elementView, linearContainer, lifecycleOwner)
             }
         }
     }

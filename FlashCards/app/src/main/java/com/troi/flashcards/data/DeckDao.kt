@@ -6,7 +6,7 @@ import androidx.room.*
 @Dao
 interface DeckDao {
     @Insert
-    suspend fun insertDeck(deck: DeckSave)
+    suspend fun insertDeck(deck: DeckSave): Long
 
     @Query("SELECT * FROM decks")
     suspend fun getAllDecks(): List<DeckSave>
