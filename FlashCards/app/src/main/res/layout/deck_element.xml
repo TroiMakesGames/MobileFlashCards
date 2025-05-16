@@ -36,19 +36,19 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Button 1" />
+            android:text="Play" />
 
         <Button
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Button 2" />
+            android:text="Edit" />
 
         <Button
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Button 3" />
+            android:text="Delete" />
     </LinearLayout>
 
 </FrameLayout>

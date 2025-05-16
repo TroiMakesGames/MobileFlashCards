@@ -13,4 +13,14 @@ interface DeckDao {
 
     @Query("DELETE FROM decks WHERE id = :deckId")
     suspend fun deleteDeckById(deckId: Int)
+
+    @Query("SELECT * FROM decks WHERE id = :deckId LIMIT 1")
+    suspend fun getDeckById(deckId: Int): DeckSave?
+
+    @Update
+    suspend fun updateDeck(deck: DeckSave)
+
+    //hard database reset
+    @Query("DELETE FROM decks")
+    suspend fun clearAllDecks()
 }

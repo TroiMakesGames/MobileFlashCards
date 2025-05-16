@@ -57,10 +57,35 @@ class MainActivity : ComponentActivity() {
         appDatabase = AppDatabase.getDatabase((applicationContext))
         deckDao = appDatabase.deckDao()
 
+        //VERY VERY TEMPORARY - SHOULD NOT BE EXECUTING
+        //lifecycleScope.launch(Dispatchers.IO) {
+        //    deckDao.clearAllDecks()
+        //}
+
+        //initial load
+        loadData()
+
+        //get add button and set on click listener to add decks
+        var addButton = findViewById<Button>(R.id.addButton)
+        addButton.setOnClickListener {
+
+            //create new deck and add it to list of all, then add to db and display ui
+            var newDeck = Deck("New Deck", deckDao, null, linearContainer, this, this)
+            allDecks.add(newDeck)
+
+            //newDeck.addSaveToDatabase(this)   //done in deck init if prev save doesnt exist
+            newDeck.addElementToLayout(linearContainer)
+        }
+    }
+
+    //----------------------------------------------------------------------------------------------
+
+    //function to load initial data of app run (not resume)
+    private fun loadData() {
         //load saved decks to list of all
         var savedDeckSaves: List<DeckSave> = listOf()
-        var context = this          //vars to pass into corotuine
-        var lifeCycleOwner = this   //
+        var context = this
+        var lifeCycleOwner = this
         lifecycleScope.launch(Dispatchers.IO) {
             savedDeckSaves = deckDao.getAllDecks()
             Log.d("MainActivity", "||||| loaded saved saves")
@@ -79,18 +104,6 @@ class MainActivity : ComponentActivity() {
                     deck.addElementToLayout(linearContainer)
                 }
             }
-        }
-
-        //get add button and set on click listener to add decks
-        var addButton = findViewById<Button>(R.id.addButton)
-        addButton.setOnClickListener {
-
-            //create new deck and add it to list of all, then add to db and display ui
-            var newDeck = Deck("New Deck", deckDao, null, linearContainer, this, this)
-            allDecks.add(newDeck)
-
-            //newDeck.addSaveToDatabase(this)   //done in deck init if prev save doesnt exist
-            newDeck.addElementToLayout(linearContainer)
         }
     }
 }
@@ -227,7 +240,7 @@ private fun loadPlayActivity(deckIndex: Int, context: Context) {
     val intent = Intent(context, PlayActivity::class.java)
 
     //send deck index data
-    intent.putExtra("deckIndex", deckIndex)
+    intent.putExtra("deckId", deckIndex)
 
     //start intent as activity
     context.startActivity(intent)
@@ -238,7 +251,7 @@ private fun loadEditActivity(deckIndex: Int, context: Context) {
     val intent = Intent(context, EditActivity::class.java)
 
     //send deck index data
-    intent.putExtra("deckIndex", deckIndex)
+    intent.putExtra("deckId", deckIndex)
 
     //start intent as activity
     context.startActivity(intent)
