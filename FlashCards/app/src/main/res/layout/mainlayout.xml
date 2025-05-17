@@ -21,7 +21,6 @@
 
     </ScrollView>
 
-    <!-- Button for adding new text object -->
     <Button
         android:id="@+id/addButton"
 

@@ -115,7 +115,7 @@ class Deck(var deckName: String, deckDao: DeckDao, prevSave: DeckSave?, linearCo
 
     //initialize vars
     var name: String = deckName
-    var deckSave = DeckSave(name = name)
+    var deckSave = DeckSave(name = name, content = "Question 1||Question 2||Question 3")
     var id: Int = deckSave.id
     var deckElement = generateDeckElement(this, linearContainer, context, lifecycleOwner)
 
