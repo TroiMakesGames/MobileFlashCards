@@ -13,6 +13,7 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.troi.flashcards.data.AppDatabase
 import com.troi.flashcards.data.DeckSave
@@ -93,6 +94,8 @@ class EditActivity : AppCompatActivity() {
 
         //create add button onclicklistener to add new questions
         val addButton = findViewById<Button>(R.id.addButton)
+        addButton.backgroundTintList = null
+        addButton.background = ContextCompat.getDrawable(this, R.drawable.addbutton)
 
         addButton.setOnClickListener() {
             var newQuestionView = generateQuestionView("New Question", this)
