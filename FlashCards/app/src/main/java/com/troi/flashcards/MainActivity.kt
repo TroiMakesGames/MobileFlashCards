@@ -25,6 +25,7 @@ import com.troi.flashcards.data.AppDatabase
 import com.troi.flashcards.ui.theme.FlashCardsTheme
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.troi.flashcards.data.DeckSave
@@ -194,6 +195,9 @@ fun generateDeckElement(parentDeck: Deck, linearContainer: LinearLayout, context
 
     //apply deck name to text views text
     nameText.text = parentDeck.name
+
+    //set ui visuals
+    elementView.background = ContextCompat.getDrawable(context, R.drawable.deck)
 
     //handle click to show buttons
     nameText.setOnClickListener {
