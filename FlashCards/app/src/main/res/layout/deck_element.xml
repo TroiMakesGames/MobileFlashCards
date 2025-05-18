@@ -35,29 +35,44 @@
         android:gravity="center"
         android:background="@android:color/transparent">
 
-        <Button
+        <androidx.appcompat.widget.AppCompatImageButton
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="45dp"
             android:layout_weight="1"
-            android:background="@drawable/deckbutton"
             android:layout_marginEnd="5dp"
-            android:text="Play" />
+            android:text="Play"
 
-        <Button
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@drawable/deckbutton"
-            android:layout_marginEnd="5dp"
-            android:text="Edit" />
+            android:background="@null"
+            android:scaleType="fitCenter"
+            android:src="@drawable/playicon"
+            android:adjustViewBounds="true"
+            />
 
-        <Button
+        <androidx.appcompat.widget.AppCompatImageButton
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="45dp"
             android:layout_weight="1"
-            android:background="@drawable/deckbutton"
             android:layout_marginEnd="5dp"
-            android:text="Delete" />
+            android:text="Edit"
+
+            android:background="@null"
+            android:scaleType="fitCenter"
+            android:src="@drawable/editicon"
+            android:adjustViewBounds="true"
+            />
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:layout_width="0dp"
+            android:layout_height="45dp"
+            android:layout_weight="1"
+            android:layout_marginEnd="5dp"
+            android:text="Delete"
+
+            android:background="@null"
+            android:scaleType="fitCenter"
+            android:src="@drawable/trashicon"
+            android:adjustViewBounds="true"
+            />
     </LinearLayout>
 
 </FrameLayout>
